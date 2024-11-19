@@ -1,0 +1,83 @@
+import streamlit as st
+import google.generativeai as genai
+
+# Configure the API key
+genai.configure(api_key="AIzaSyAnSTpDzu__RJ330CjM534g8EvJBD_6LIo")
+
+# Set up the model
+generation_config = {
+    "temperature": 0.7,  # Adjusted for more balanced responses
+    "top_p": 0.9,
+    "top_k": 40,
+    "max_output_tokens": 2048,
+}
+
+safety_settings = [
+    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+]
+
+model = genai.GenerativeModel(
+    model_name="gemini-1.5-flash-002",
+    
+    generation_config=generation_config,
+    safety_settings=safety_settings
+)
+
+# Set up the chat
+if "chat" not in st.session_state:
+     # Initialize chat with a context about providing psychological advice
+        st.session_state.chat = model.start_chat()
+        history=[{"role": "system", "content": "You are a helpful assistant specializing in psychological advice."}]
+    
+
+# Streamlit app
+st.title("Psychology Advice Chatbot")
+
+# Display chat history
+for message in st.session_state.chat.history:
+    with st.chat_message(message.role):
+        st.markdown(message.parts[0].text)
+
+# User input
+user_input = st.chat_input("How can I assist you today with your psychological concerns?")
+
+if user_input:
+    # Add user message to chat
+    st.chat_message("user").markdown(user_input)
+    
+    # Generate response
+    response = st.session_state.chat.send_message(user_input)
+    
+    # Display assistant response
+    with st.chat_message("assistant"):
+        st.markdown(response.text)
+
+import dns.resolver
+import requests
+
+def check_dns_record(domain, record_type, value):
+    try:
+        answers = dns.resolver.query(domain, record_type)
+        for rdata in answers:
+            if str(rdata) == value:() 
+            return True
+        return False
+    except dns.resolver.NXDOMAIN:
+        print("Domain không tồn tại")
+    except dns.resolver.NoAnswer:
+        print("Không tìm thấy bản ghi DNS")
+    except Exception as e:
+        print(f"Lỗi khi kiểm tra bản ghi DNS: {e}")
+
+# Ví dụ: Kiểm tra bản ghi TXT để xác minh Google Search Console
+domain = "nhom6python.id.vn"
+record_type = "TXT"
+value = "google-site-verification=CrqpiqW0RUF2EBcYz5vCAKLA6246pj2flYZhYgGZ0FE"
+
+if check_dns_record(domain, record_type, value):
+    print("Bản ghi DNS đã được thêm vào!")
+else:
+    print("Bản ghi DNS chưa được thêm vào hoặc không chính xác")
